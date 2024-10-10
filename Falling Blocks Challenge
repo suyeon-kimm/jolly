@@ -1,0 +1,169 @@
+float tickMinus = 0, speed = 2, speedy = 0.3, plusTickTerm = 40, minusTickTerm = 100, big = 15, tickPlus = 0;
+float P_x, P_y, P_speed = 15, P_speedy = 1, speedUp, plusDownSpeed = 0.92, minusDownSpeed = 0.9;
+int plusN = 1, minusN, score, mouse, time = -1, timeN = 50, plusTick, start, minusTick;
+float[] plusMove, plusX, plusY, minusMove, minusX, minusY;
+
+void setup() {
+  size(300, 500);
+  plusMove = new float[10000];
+  plusX = new float[10000];
+  plusY = new float[10000];
+  minusMove = new float[10000];
+  minusX = new float[10000];
+  minusY = new float[10000];
+
+  plusX[1] = random(big, width - big);
+  plusY[1] = -big;
+  plusMove[1] = 1;
+
+  minusX[1] = random(big, width - big);
+  minusY[1] = -big;
+  minusMove[1] = 1;
+
+  P_x = width / 2;
+  P_y = height - big;
+
+  background(255);
+  rect(50, 105, 200, 125);
+  rect(50, 265, 200, 125);
+  fill(0);
+  textSize(30);
+  text("Mouse", 110, 179);
+  text("Keyboard(←,→)", 61, 337);
+}
+
+void draw() {
+  if (time == -1 && start == 1) {
+    background(255);
+    fill(0);
+    textSize(30);
+    text("Score : " + score, 95, 230);
+  }
+
+  if (mouse == 1) {
+    P_x = mouseX;
+  }
+
+  if (time != -1) {
+    background(255);
+    fill(0);
+    textSize(20);
+    text("Score : " + score, width - 90, 20);
+    text("Time : " + time, 10, 20);
+    player(P_x, P_y);
+
+    if (tickPlus == plusTickTerm) {
+      plusN++;
+      plusX[plusN] = random(big, width - big);
+      plusY[plusN] = -big;
+      plusMove[plusN] = 1;
+      tickPlus = 0;
+
+      if (plusTick == 1) {
+        if (plusTickTerm > 10 && mouse == 0) plusTickTerm *= plusDownSpeed;
+        if (plusTickTerm > 5 && mouse == 1) plusTickTerm *= plusDownSpeed;
+        plusTick = 0;
+      }
+    }
+
+    if (tickMinus == minusTickTerm) {
+      minusN++;
+      minusX[minusN] = random(big, width - big);
+      minusY[minusN] = -big;
+      minusMove[minusN] = 1;
+      tickMinus = 0;
+
+      if (minusTick == 1) {
+        if (minusTickTerm > 20 && mouse == 0) minusTickTerm *= minusDownSpeed;
+        if (minusTickTerm > 10 && mouse == 1) minusTickTerm *= minusDownSpeed;
+        minusTick = 0;
+      }
+    }
+
+    for (int i = 1; i <= plusN; i++) {
+      if (plusY[i] == height + 15) plusMove[i] = 0;
+
+      if (plusMove[i] == 1) {
+        plus(plusX[i], plusY[i]);
+        plusY[i] += speed;
+
+        if (abs(plusX[i] - P_x) <= 2 * big && P_y - plusY[i] <= 2 * big) {
+          plusMove[i] = 0;
+          score++;
+        }
+      }
+    }
+
+    for (int i = 1; i <= minusN; i++) {
+      if (minusY[i] == height + 15) minusMove[i] = 0;
+
+      if (minusMove[i] == 1) {
+        minus(minusX[i], minusY[i]);
+        minusY[i] += speed;
+
+        if (abs(minusX[i] - P_x) <= 2 * big && P_y - minusY[i] <= 2 * big) {
+          minusMove[i] = 0;
+          score--;
+        }
+      }
+    }
+
+    if (speedUp == 60) {
+      if (speed < 5 && mouse == 0) speed += speedy;
+      else if (speed < 7 && mouse == 1) speed += speedy;
+
+      plusTick = 1;
+      minusTick = 1;
+      speedUp = 0;
+      P_speed += P_speedy;
+    }
+
+    if (timeN == 60) {
+      timeN = 0;
+      time--;
+    }
+
+    tickPlus++;
+    tickMinus++;
+    speedUp++;
+    timeN++;
+  }
+}
+
+void minus(float x, float y) {
+  fill(255, 0, 0);
+  rect(x - big, y - big, big * 2, big * 2);
+}
+
+void plus(float x, float y) {
+  fill(0, 0, 255);
+  rect(x - big, y - big, big * 2, big * 2);
+}
+
+void player(float x, float y) {
+  fill(0);
+  if (x < big) P_x = x = big;
+  if (x > width - big) P_x = x = width - big;
+  rect(x - big, y - big, big * 2, big * 2);
+}
+
+void keyPressed() {
+  if (key == CODED) {
+    if (keyCode == RIGHT && P_x <= width - big - 1) P_x += P_speed;
+    if (keyCode == LEFT && P_x >= big + 1) P_x -= P_speed;
+  }
+}
+
+void mouseClicked() {
+  if (start == 0) {
+    if (mouseX >= 50 && mouseX <= 250 && mouseY >= 105 && mouseY <= 230) {
+      start = 1;
+      time = 30;
+      mouse = 1;
+      speed = 4;
+    } else if (mouseX >= 50 && mouseX <= 250 && mouseY >= 265 && mouseY <= 390) {
+      start = 1;
+      time = 30;
+    }
+  }
+}
